@@ -23,11 +23,19 @@
   }
   .top-controls {
     display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-bottom: 5px;
+    justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
+    margin-bottom: 10px;
+    padding: 0 6px;
+    user-select: none;
+  }
+  .left-controls, .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .middle-space {
+    flex-grow: 1;
   }
   select, button {
     background: #000;
@@ -117,7 +125,7 @@
     cursor: pointer;
   }
   .score {
-    font-size: 48px;
+    font-size: 72px; /* más grande */
     font-weight: bold;
     word-break: break-word;
   }
@@ -201,28 +209,28 @@
     border-color: #6b2f2f;
     color: #e5a0a0;
   }
-  /* Juego actual */
-  #game-indicator {
-    font-weight: bold;
-    font-size: 18px;
-    color: #ffeb3b;
-    margin-left: 10px;
-    user-select: none;
-  }
 </style>
 </head>
 
 <body>
-<h1>TELEFÚKER <span id="game-indicator"></span></h1>
+<h1>TELEFÚKER</h1>
 
-<div class="top-controls">
-  <select id="count" aria-label="Número de jugadores">
-    <option value="">Jugadores</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-  </select>
-  <button class="btn-undo" id="undo" disabled aria-label="Deshacer último cambio">DESHACER</button>
+<div class="top-controls" role="region" aria-label="Controles superiores">
+  <div class="left-controls">
+    <select id="count" aria-label="Número de jugadores">
+      <option value="">Jugadores</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+    <button class="btn-undo" id="undo" disabled aria-label="Deshacer último cambio">DESHACER</button>
+  </div>
+  <div class="middle-space"></div>
+  <div class="right-controls">
+    <select id="game-select" aria-label="Seleccionar juego actual" title="Seleccionar juego">
+      <!-- Opciones generadas por JS -->
+    </select>
+  </div>
 </div>
 
 <div class="players" id="players"></div>
@@ -231,7 +239,7 @@
   <button class="btn-reset" id="reset-btn">REINICIAR</button>
 </div>
 
-<div class="modal" id="modal">
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalText">
   <div class="modal-box">
     <div id="modalText"></div>
     <input id="modalInput" type="number" inputmode="numeric" />
@@ -246,7 +254,7 @@
     "2/3", "1/3 1/4", "2/4",
     "1/4 1/5", "2/5", "Escalera"
   ];
-  // Estado inicial
+
   let state = JSON.parse(localStorage.getItem("telefuker")) || {
     count: 0,
     players: [],
@@ -255,7 +263,6 @@
     currentGameIndex: 0,
   };
 
-  // DOM refs
   const playersDiv = document.getElementById("players");
   const countSel = document.getElementById("count");
   const undoBtn = document.getElementById("undo");
@@ -264,28 +271,35 @@
   const modalText = document.getElementById("modalText");
   const modalInput = document.getElementById("modalInput");
   const modalActions = document.getElementById("modalActions");
-  const gameIndicator = document.getElementById("game-indicator");
+  const gameSelect = document.getElementById("game-select");
 
-  // Guardar estado
   function save() {
     localStorage.setItem("telefuker", JSON.stringify(state));
   }
-  // Guardar snapshot para deshacer
+
   function snapshot() {
     state.history.push(JSON.stringify(state));
     undoBtn.disabled = false;
   }
 
-  // Renderizar jugadores y UI
+  function renderGameSelect() {
+    gameSelect.innerHTML = "";
+    GAMES.forEach((g, i) => {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = g;
+      if(i === state.currentGameIndex) opt.selected = true;
+      gameSelect.appendChild(opt);
+    });
+  }
+
   function render() {
     playersDiv.innerHTML = "";
     if (!state.count) {
-      gameIndicator.textContent = "";
       undoBtn.disabled = true;
       return;
     }
-    // Mostrar juego actual
-    gameIndicator.textContent = `- Juego ${state.currentGameIndex + 1} de ${GAMES.length} (${GAMES[state.currentGameIndex]})`;
+    renderGameSelect();
 
     state.players.forEach((p, i) => {
       const d = document.createElement("div");
@@ -333,9 +347,8 @@
     });
   }
 
-  // Abrir modal para ingresar puntaje
   function openScore(i) {
-    if (state.winner !== null) return; // No editar si hay ganador
+    if (state.winner !== null) return;
     modalText.textContent = `Ingresar puntos para ${state.players[i].name}`;
     modalInput.style.display = "block";
     modalInput.value = "";
@@ -347,7 +360,6 @@
     `;
   }
 
-  // Aplicar puntaje sumando o restando
   window.applyScore = function(i, mul) {
     const v = parseInt(modalInput.value);
     if (isNaN(v)) return;
@@ -359,12 +371,9 @@
     render();
   }
 
-  // Comprobar ganador al final de partida
   function checkWinner() {
-    if (state.currentGameIndex < GAMES.length - 1) {
-      return; // Solo se define ganador al final de la partida
-    }
-    // Quien tenga MÁS puntos gana (acumulados)
+    if (state.currentGameIndex < GAMES.length - 1) return;
+
     let maxPts = -Infinity;
     let winnerIndex = null;
     state.players.forEach((p, i) => {
@@ -374,16 +383,6 @@
       }
     });
     state.winner = winnerIndex;
-  }
-
-  // Avanzar juego al siguiente
-  function nextGame() {
-    if (state.currentGameIndex < GAMES.length - 1) {
-      snapshot();
-      state.currentGameIndex++;
-      save();
-      render();
-    }
   }
 
   countSel.onchange = () => {
@@ -419,12 +418,13 @@
     }
   };
 
-  // Permitir avanzar juego con tecla N
-  window.addEventListener("keydown", e => {
-    if (e.key.toLowerCase() === "n" && state.count && state.winner === null) {
-      nextGame();
-    }
-  });
+  gameSelect.onchange = () => {
+    snapshot();
+    state.currentGameIndex = parseInt(gameSelect.value);
+    state.winner = null; // reset ganador si cambio juego manual
+    save();
+    render();
+  };
 
   render();
 })();
