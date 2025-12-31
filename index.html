@@ -26,37 +26,34 @@
 
   .top-controls {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* distribuye los elementos con espacios */
     align-items: center;
     padding: 0 12px;
     margin-bottom: 10px;
+    gap: 8px;
   }
-  .left-controls {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-  .right-controls {
-    background: #0a3c0a;
-    border: 2px solid #0f7c0f;
-    border-radius: 8px;
-    padding: 6px 10px;
-    min-width: 140px;
-    max-width: 200px;
+
+  .top-controls select,
+  .top-controls button {
+    flex: 1 1 auto;
+    max-width: 120px;
+    min-width: 60px;
     text-align: center;
   }
-  .right-controls select {
-    background: transparent;
-    color: #fff;
-    border: none;
-    width: 100%;
+
+  .btn-undo {
+    border-color: #b36b00;
+    color: #ffb84d;
+    font-size: 24px;
+    padding: 6px 8px;
+  }
+
+  .btn-reset {
+    border-color: #6b2f2f;
+    color: #e5a0a0;
     font-size: 16px;
-    text-align: center;
-    text-align-last: center;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    cursor: pointer;
+    max-width: 120px;
+    padding: 8px 12px;
   }
 
   select, button {
@@ -64,7 +61,6 @@
     color: #fff;
     border: 1px solid #333;
     border-radius: 6px;
-    padding: 8px 12px;
     font-size: 16px;
     cursor: pointer;
   }
@@ -72,17 +68,7 @@
     opacity: 0.4;
     cursor: default;
   }
-  .btn-undo {
-    border-color: #b36b00;
-    color: #ffb84d;
-  }
-  .btn-reset {
-    border-color: #6b2f2f;
-    color: #e5a0a0;
-    margin-top: 20px;
-    width: 110px;
-    font-size: 16px;
-  }
+
   .btn-use-buy {
     border-color: #cc6600;
     color: #ffb84d;
@@ -230,34 +216,34 @@
 <h1>TELEFUKER</h1>
 
 <div class="top-controls">
-  <div class="left-controls">
-    <select id="count">
-      <option value="">Jugadores</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-    </select>
-    <button class="btn-undo" id="undo" disabled>DESHACER</button>
-  </div>
-  <div class="right-controls">
-    <select id="gameSelect">
-      <option value="1/3">1/3</option>
-      <option value="1/4">1/4</option>
-      <option value="1/5">1/5</option>
-      <option value="2/3">2/3</option>
-      <option value="1/3 1/4">1/3 1/4</option>
-      <option value="2/4">2/4</option>
-      <option value="1/4 1/5">1/4 1/5</option>
-      <option value="2/5">2/5</option>
-      <option value="Escalera">Escalera</option>
-    </select>
-  </div>
+  <select id="count">
+    <option value="">Jugadores</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+
+  <button class="btn-undo" id="undo" disabled title="Deshacer">&#8592;</button>
+
+  <select id="gameSelect">
+    <option value="1/3">1/3</option>
+    <option value="1/4">1/4</option>
+    <option value="1/5">1/5</option>
+    <option value="2/3">2/3</option>
+    <option value="1/3 1/4">1/3 1/4</option>
+    <option value="2/4">2/4</option>
+    <option value="1/4 1/5">1/4 1/5</option>
+    <option value="2/5">2/5</option>
+    <option value="Escalera">Escalera</option>
+  </select>
+
+  <button class="btn-reset" id="resetBtn">REINICIAR</button>
 </div>
 
 <div class="players" id="players"></div>
 
 <div class="bottom">
-  <button class="btn-reset" id="resetBtn">REINICIAR</button>
+  <!-- Botón reiniciar ya está en la top-controls según pedido -->
 </div>
 
 <div class="modal" id="modal">
