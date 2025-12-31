@@ -14,14 +14,14 @@
     background: #000;
     color: #fff;
     height: 100vh;
-    overflow-x: hidden;
-    overflow-y: hidden; /* No scroll vertical */
+    overflow: hidden;
   }
   h1 {
     text-align: center;
     letter-spacing: 4px;
     margin: 15px 0;
     user-select: none;
+    font-size: 24px;
   }
 
   .top-controls {
@@ -34,19 +34,29 @@
   .left-controls {
     display: flex;
     gap: 12px;
+    align-items: center;
   }
   .right-controls {
-    max-width: 180px;
-    min-width: 140px;
     background: #0a3c0a;
     border: 2px solid #0f7c0f;
     border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     padding: 6px 10px;
-    overflow: hidden;
-    user-select: none;
+    min-width: 140px;
+    max-width: 200px;
+    text-align: center;
+  }
+  .right-controls select {
+    background: transparent;
+    color: #fff;
+    border: none;
+    width: 100%;
+    font-size: 16px;
+    text-align: center;
+    text-align-last: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
   }
 
   select, button {
@@ -69,51 +79,50 @@
   .btn-reset {
     border-color: #6b2f2f;
     color: #e5a0a0;
-    margin-top: 20px; /* separación prudente */
+    margin-top: 20px;
     width: 110px;
+    font-size: 16px;
   }
   .btn-use-buy {
     border-color: #cc6600;
     color: #ffb84d;
+    font-size: 14px;
+    padding: 8px;
   }
   .btn-add-buy {
     border-color: #00662e;
     color: #94d48e;
+    font-size: 14px;
+    padding: 8px;
   }
 
   .players {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0,1fr));
-    grid-template-rows: repeat(3, 1fr);
-    gap: 10px;
-    width: 100%;
-    padding: 0 8px;
-    max-height: calc(100vh - 160px); /* dejar espacio para boton reiniciar y top */
-    overflow-y: hidden; /* nada de scroll vertical */
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 12px;
+    height: calc(100vh - 180px);
+    overflow: hidden;
   }
   .player {
     border: 1px solid #222;
-    padding: 10px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
-    transition: 0.3s;
-    min-width: 0;
-    user-select: none;
     background: #111;
-    border-radius: 6px;
+    border-radius: 8px;
+    min-width: 0;
   }
   .player.disabled {
     opacity: 0.35;
     pointer-events: none;
-  }
-  .player.winner {
-    border: 3px solid #d4af37;
   }
 
   .name-block {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-bottom: 8px;
   }
   .name {
     text-align: center;
@@ -131,14 +140,14 @@
     background: #ffeb3b;
     color: #000;
     font-size: 14px;
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 6px;
     user-select: none;
   }
   .divider {
     height: 1px;
     background: #333;
-    margin: 8px 0;
+    margin: 10px 0;
   }
 
   .score-zone {
@@ -148,35 +157,31 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    min-height: 120px;
+    min-height: 100px;
   }
   .score {
     font-size: 72px;
     font-weight: bold;
-    word-break: break-word;
     user-select: none;
-  }
-  .score.out {
-    color: #e55353;
   }
 
   .buy-controls {
     display: flex;
     justify-content: center;
-    gap: 8px;
-    margin-top: 8px;
+    gap: 10px;
+    margin-top: 10px;
   }
 
   .bottom {
     display: flex;
     justify-content: center;
-    padding-bottom: 8px;
+    padding: 12px 0;
   }
 
   .modal {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.85);
+    background: rgba(0,0,0,0.9);
     display: none;
     align-items: center;
     justify-content: center;
@@ -187,28 +192,28 @@
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    width: 280px;
+    width: 90%;
+    max-width: 300px;
   }
   .modal-box input {
     width: 100%;
     padding: 12px;
-    font-size: 22px;
+    font-size: 24px;
     text-align: center;
     background: #000;
     color: #fff;
     border: 1px solid #333;
-    margin-bottom: 12px;
+    margin: 15px 0;
   }
   .modal-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: center;
   }
   .modal-actions button {
     flex: 1;
-    padding: 10px 0;
+    padding: 12px 0;
     font-weight: bold;
-    max-width: 100px;
   }
   .btn-yes {
     border-color: #2f6b3f;
@@ -235,7 +240,7 @@
     <button class="btn-undo" id="undo" disabled>DESHACER</button>
   </div>
   <div class="right-controls">
-    <select id="gameSelect" title="Seleccione juego">
+    <select id="gameSelect">
       <option value="1/3">1/3</option>
       <option value="1/4">1/4</option>
       <option value="1/5">1/5</option>
@@ -258,7 +263,7 @@
 <div class="modal" id="modal">
   <div class="modal-box">
     <div id="modalText"></div>
-    <input id="modalInput" type="number" inputmode="numeric" />
+    <input id="modalInput" type="number" inputmode="numeric" placeholder="0" />
     <div class="modal-actions" id="modalActions"></div>
   </div>
 </div>
@@ -269,7 +274,6 @@
     count: 0,
     players: [],
     history: [],
-    winner: null,
     currentGame: "1/3"
   };
 
@@ -288,8 +292,13 @@
   }
 
   function snapshot() {
-    if(state.history.length >= 20) state.history.shift(); // limitar historial a 20
-    state.history.push(JSON.stringify(state));
+    if (state.history.length >= 20) state.history.shift();
+    const snap = {
+      count: state.count,
+      players: JSON.parse(JSON.stringify(state.players)),
+      currentGame: state.currentGame
+    };
+    state.history.push(JSON.stringify(snap));
     undoBtn.disabled = false;
   }
 
@@ -301,17 +310,11 @@
 
     state.players.forEach((p, i) => {
       const playerDiv = document.createElement("div");
-      playerDiv.className = "player";
-      if (state.winner !== null) {
-        if (i === state.winner) playerDiv.classList.add("winner");
-        else playerDiv.classList.add("disabled");
-      } else if (p.disabled) {
-        playerDiv.classList.add("disabled");
-      }
+      playerDiv.className = `player ${p.disabled ? "disabled" : ""}`;
 
       playerDiv.innerHTML = `
         <div class="name-block">
-          <input class="name" value="${p.name}" />
+          <input class="name" value="${p.name.replace(/ \d+$/, '')}" />
           <div class="compras">Compras: ${p.buy}</div>
         </div>
         <div class="divider"></div>
@@ -325,16 +328,14 @@
       `;
 
       const nameInput = playerDiv.querySelector(".name");
-      nameInput.onfocus = (e) => e.target.select();
-      nameInput.oninput = (e) => {
-        state.players[i].name = e.target.value.toUpperCase();
+      nameInput.onfocus = e => e.target.select();
+      nameInput.oninput = e => {
+        const baseName = e.target.value.toUpperCase() || "NOMBRE";
+        state.players[i].name = `${baseName} ${i + 1}`;
         save();
       };
 
-      playerDiv.querySelector(".score-zone").onclick = () => {
-        if (state.winner !== null) return;
-        openScoreModal(i);
-      };
+      playerDiv.querySelector(".score-zone").onclick = () => openScoreModal(i);
 
       playerDiv.querySelector(".btn-use-buy").onclick = () => useBuy(i);
       playerDiv.querySelector(".btn-add-buy").onclick = () => addBuy(i);
@@ -344,9 +345,9 @@
   }
 
   function openScoreModal(i) {
-    modalText.textContent = `Ingresar puntos para ${state.players[i].name}`;
-    modalInput.style.display = "block";
+    modalText.textContent = `Puntos para ${state.players[i].name}`;
     modalInput.value = "";
+    modalInput.style.display = "block";
     modal.style.display = "flex";
     modalInput.focus();
 
@@ -355,22 +356,21 @@
       <button class="btn-no" data-op="restar">RESTAR</button>
     `;
 
-    [...modalActions.children].forEach(btn => {
-      btn.onclick = () => applyPoints(i, btn.getAttribute("data-op"));
+    modalActions.querySelectorAll("button").forEach(btn => {
+      btn.onclick = () => applyPoints(i, btn.dataset.op);
     });
   }
 
   function applyPoints(i, op) {
     const val = parseInt(modalInput.value);
-    if (isNaN(val) || val <= 0) return;
+    if (isNaN(val) || val <= 0) {
+      modalInput.focus();
+      return;
+    }
 
     snapshot();
-
-    if (op === "sumar") {
-      state.players[i].score += val;
-    } else if (op === "restar") {
-      state.players[i].score -= val;
-    }
+    if (op === "sumar") state.players[i].score += val;
+    else state.players[i].score -= val;
 
     modal.style.display = "none";
     save();
@@ -386,7 +386,7 @@
   }
 
   function addBuy(i) {
-    if (!confirm(`¿Agregar 1 compra para ${state.players[i].name}?`)) return;
+    if (!confirm(`¿Agregar 1 compra a ${state.players[i].name}?`)) return;
     snapshot();
     state.players[i].buy++;
     save();
@@ -394,17 +394,13 @@
   }
 
   countSel.onchange = () => {
-    const selectedCount = parseInt(countSel.value);
-    if (!selectedCount || selectedCount < 2 || selectedCount > 4) return;
+    const n = parseInt(countSel.value);
+    if (n < 2 || n > 4) return;
 
     snapshot();
-
-    state.count = selectedCount;
+    state.count = n;
     state.players = [];
-    state.winner = null;
-    state.history = [];
-
-    for (let i = 0; i < selectedCount; i++) {
+    for (let i = 0; i < n; i++) {
       state.players.push({
         name: `NOMBRE ${i + 1}`,
         score: 0,
@@ -412,10 +408,9 @@
         disabled: false
       });
     }
-
     save();
     render();
-    undoBtn.disabled = true;
+    undoBtn.disabled = state.history.length === 0;
   };
 
   gameSelect.onchange = () => {
@@ -425,35 +420,30 @@
 
   undoBtn.onclick = () => {
     if (state.history.length === 0) return;
-    state = JSON.parse(state.history.pop());
+    const old = JSON.parse(state.history.pop());
+    state.count = old.count;
+    state.players = old.players;
+    state.currentGame = old.currentGame;
     save();
     render();
-    if (state.history.length === 0) undoBtn.disabled = true;
+    undoBtn.disabled = state.history.length === 0;
   };
 
   resetBtn.onclick = () => {
-    if (!confirm("¿Reiniciar juego?")) return;
+    if (!confirm("¿Reiniciar todo el juego? Se perderá todo.")) return;
     localStorage.removeItem("telefuker");
-    state = {
-      count: 0,
-      players: [],
-      history: [],
-      winner: null,
-      currentGame: "1/3"
-    };
+    state = { count: 0, players: [], history: [], currentGame: "1/3" };
+    countSel.value = "";
     render();
     undoBtn.disabled = true;
-    countSel.value = "";
   };
 
-  modal.onclick = e => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-    }
-  };
+  // No cerrar modal tocando fuera (fiel al resumen: sin Cancelar)
+  // modal.onclick = ... removido intencionalmente
 
+  // Carga inicial
   render();
-
+  if (state.count) countSel.value = state.count;
 })();
 </script>
 
