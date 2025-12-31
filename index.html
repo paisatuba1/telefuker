@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>TELEFÚKER</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+  html, body {
+    margin: 0; padding: 0;
+    background: #000;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  h1 {
+    text-align: center;
+    letter-spacing: 4px;
+    margin: 15px 0 5px 0;
+  }
+  .top-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 5px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  select, button {
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 16px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .btn-undo {
+    border-color: #b36b00;
+    color: #ffb84d;
+  }
+  .btn-reset {
+    border-color: #6b2f2f;
+    color: #e5a0a0;
+  }
+  .players {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, 1fr);
+    height: calc(100vh - 180px);
+    width: 100%;
+    padding: 0 6px;
+    gap: 10px;
+    overflow: hidden;
+  }
+  .player {
+    border: 1px solid #222;
+    padding: 12px 10px 14px 10px;
+    display: flex;
+    flex-direction: column;
+    transition: 0.3s;
+    min-width: 0;
+    position: relative;
+  }
+  .player.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .player.winner {
+    border: 2px solid #d4af37;
+  }
+  .name-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .name {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    background: transparent;
+    border: none;
+    color: #fff;
+    outline: none;
+    text-transform: uppercase;
+    width: 100%;
+  }
+  .entradas {
+    margin-top: 4px;
+    background: #ffeb3b;
+    color: #000;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    user-select: none;
+  }
+  .divider {
+    height: 1px;
+    background: #333;
+    margin: 8px 0;
+  }
+  .score-zone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  .score {
+    font-size: 48px;
+    font-weight: bold;
+    word-break: break-word;
+  }
+  .score.out {
+    color: #e55353;
+  }
+  .winner-label {
+    margin-top: 6px;
+    color: #d4af37;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+  .compras {
+    margin-top: 8px;
+    text-align: center;
+    font-size: 14px;
+    color: #ffeb3b;
+    font-weight: bold;
+    user-select: none;
+  }
+  .btn-compra {
+    margin-top: 8px;
+    width: 100%;
+    background: #b36b00;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 0;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .btn-compra:disabled {
+    background: #555;
+    cursor: default;
+  }
+  .bottom {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+  }
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  .modal-box {
+    background: #111;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 280px;
+  }
+  .modal-box input {
+    width: 100%;
+    padding: 12px;
+    font-size: 22px;
+    text-align: center;
+    background: #000;
+    color: #fff;
+    border: 1px solid #333;
+    margin-bottom: 12px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .modal-actions button {
+    flex: 1;
+  }
+  .btn-yes {
+    border-color: #2f6b3f;
+    color: #9be5b1;
+  }
+  .btn-no {
+    border-color: #6b2f2f;
+    color: #e5a0a0;
+  }
+  /* Juego actual */
+  #game-indicator {
+    font-weight: bold;
+    font-size: 18px;
+    color: #ffeb3b;
+    margin-left: 10px;
+    user-select: none;
+  }
+</style>
+</head>
+
+<body>
+<h1>TELEFÚKER <span id="game-indicator"></span></h1>
+
+<div class="top-controls">
+  <select id="count" aria-label="Número de jugadores">
+    <option value="">Jugadores</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+  <button class="btn-undo" id="undo" disabled aria-label="Deshacer último cambio">DESHACER</button>
+</div>
+
+<div class="players" id="players"></div>
+
+<div class="bottom">
+  <button class="btn-reset" id="reset-btn">REINICIAR</button>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div id="modalText"></div>
+    <input id="modalInput" type="number" inputmode="numeric" />
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const GAMES = [
+    "1/3", "1/4", "1/5",
+    "2/3", "1/3 1/4", "2/4",
+    "1/4 1/5", "2/5", "Escalera"
+  ];
+  // Estado inicial
+  let state = JSON.parse(localStorage.getItem("telefuker")) || {
+    count: 0,
+    players: [],
+    history: [],
+    winner: null,
+    currentGameIndex: 0,
+  };
+
+  // DOM refs
+  const playersDiv = document.getElementById("players");
+  const countSel = document.getElementById("count");
+  const undoBtn = document.getElementById("undo");
+  const resetBtn = document.getElementById("reset-btn");
+  const modal = document.getElementById("modal");
+  const modalText = document.getElementById("modalText");
+  const modalInput = document.getElementById("modalInput");
+  const modalActions = document.getElementById("modalActions");
+  const gameIndicator = document.getElementById("game-indicator");
+
+  // Guardar estado
+  function save() {
+    localStorage.setItem("telefuker", JSON.stringify(state));
+  }
+  // Guardar snapshot para deshacer
+  function snapshot() {
+    state.history.push(JSON.stringify(state));
+    undoBtn.disabled = false;
+  }
+
+  // Renderizar jugadores y UI
+  function render() {
+    playersDiv.innerHTML = "";
+    if (!state.count) {
+      gameIndicator.textContent = "";
+      undoBtn.disabled = true;
+      return;
+    }
+    // Mostrar juego actual
+    gameIndicator.textContent = `- Juego ${state.currentGameIndex + 1} de ${GAMES.length} (${GAMES[state.currentGameIndex]})`;
+
+    state.players.forEach((p, i) => {
+      const d = document.createElement("div");
+      d.className = "player";
+      if (state.winner !== null) {
+        if (i === state.winner) d.classList.add("winner");
+        else d.classList.add("disabled");
+      } else if (p.disabled) {
+        d.classList.add("disabled");
+      }
+      d.innerHTML = `
+        <div class="name-block">
+          <input class="name" value="${p.name}" aria-label="Nombre jugador ${i+1}">
+        </div>
+        <div class="divider"></div>
+        <div class="score-zone" tabindex="0" aria-label="Puntaje de ${p.name}">${p.score}</div>
+        <div class="compras">Compras: ${p.compras}</div>
+        <button class="btn-compra" ${p.compras <= 0 || state.winner !== null ? 'disabled' : ''} aria-label="Usar compra de ${p.name}">USAR COMPRA</button>
+      `;
+
+      const nameInput = d.querySelector(".name");
+      nameInput.onfocus = e => e.target.select();
+      nameInput.oninput = e => {
+        p.name = e.target.value.toUpperCase();
+        save();
+      };
+
+      const scoreZone = d.querySelector(".score-zone");
+      scoreZone.onclick = () => openScore(i);
+      scoreZone.onkeypress = e => {
+        if (e.key === 'Enter' || e.key === ' ') openScore(i);
+      };
+
+      const btnCompra = d.querySelector(".btn-compra");
+      btnCompra.onclick = () => {
+        if (p.compras > 0 && state.winner === null) {
+          snapshot();
+          p.compras--;
+          save();
+          render();
+        }
+      };
+
+      playersDiv.appendChild(d);
+    });
+  }
+
+  // Abrir modal para ingresar puntaje
+  function openScore(i) {
+    if (state.winner !== null) return; // No editar si hay ganador
+    modalText.textContent = `Ingresar puntos para ${state.players[i].name}`;
+    modalInput.style.display = "block";
+    modalInput.value = "";
+    modal.style.display = "flex";
+    modalInput.focus();
+    modalActions.innerHTML = `
+      <button onclick="applyScore(${i}, 1)">SUMAR</button>
+      <button onclick="applyScore(${i}, -1)">RESTAR</button>
+    `;
+  }
+
+  // Aplicar puntaje sumando o restando
+  window.applyScore = function(i, mul) {
+    const v = parseInt(modalInput.value);
+    if (isNaN(v)) return;
+    snapshot();
+    state.players[i].score += v * mul;
+    modal.style.display = "none";
+    checkWinner();
+    save();
+    render();
+  }
+
+  // Comprobar ganador al final de partida
+  function checkWinner() {
+    if (state.currentGameIndex < GAMES.length - 1) {
+      return; // Solo se define ganador al final de la partida
+    }
+    // Quien tenga MÁS puntos gana (acumulados)
+    let maxPts = -Infinity;
+    let winnerIndex = null;
+    state.players.forEach((p, i) => {
+      if (p.score > maxPts) {
+        maxPts = p.score;
+        winnerIndex = i;
+      }
+    });
+    state.winner = winnerIndex;
+  }
+
+  // Avanzar juego al siguiente
+  function nextGame() {
+    if (state.currentGameIndex < GAMES.length - 1) {
+      snapshot();
+      state.currentGameIndex++;
+      save();
+      render();
+    }
+  }
+
+  countSel.onchange = () => {
+    state.count = parseInt(countSel.value);
+    if (isNaN(state.count)) return;
+    state.players = [];
+    state.winner = null;
+    state.history = [];
+    state.currentGameIndex = 0;
+    for (let i = 0; i < state.count; i++) {
+      state.players.push({
+        name: `NOMBRE ${i + 1}`,
+        score: 0,
+        compras: 10,
+        disabled: false,
+      });
+    }
+    save();
+    render();
+  };
+
+  undoBtn.onclick = () => {
+    if (!state.history.length) return;
+    state = JSON.parse(state.history.pop());
+    save();
+    render();
+  };
+
+  resetBtn.onclick = () => {
+    if (confirm("¿Reiniciar juego?")) {
+      localStorage.removeItem("telefuker");
+      location.reload();
+    }
+  };
+
+  // Permitir avanzar juego con tecla N
+  window.addEventListener("keydown", e => {
+    if (e.key.toLowerCase() === "n" && state.count && state.winner === null) {
+      nextGame();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
