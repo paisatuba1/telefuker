@@ -3,23 +3,20 @@
 <head>
 <meta charset="UTF-8" />
 <title>TELEFUKER</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
-
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <style>
   * {
     box-sizing: border-box;
     font-family: Arial, sans-serif;
   }
-
   html, body {
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
     background: #000;
     color: #fff;
-    min-height: 100vh;
+    height: 100vh;
     overflow-x: hidden;
+    overflow-y: hidden; /* No scroll vertical */
   }
-
   h1 {
     text-align: center;
     letter-spacing: 4px;
@@ -31,14 +28,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 10px;
+    padding: 0 12px;
     margin-bottom: 10px;
   }
-
-  .left-controls, .right-controls {
+  .left-controls {
     display: flex;
+    gap: 12px;
+  }
+  .right-controls {
+    max-width: 180px;
+    min-width: 140px;
+    background: #0a3c0a;
+    border: 2px solid #0f7c0f;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
+    padding: 6px 10px;
+    overflow: hidden;
+    user-select: none;
   }
 
   select, button {
@@ -49,38 +57,40 @@
     padding: 8px 12px;
     font-size: 16px;
     cursor: pointer;
-    user-select: none;
   }
-
   button:disabled {
     opacity: 0.4;
     cursor: default;
   }
-
   .btn-undo {
     border-color: #b36b00;
     color: #ffb84d;
   }
-
   .btn-reset {
     border-color: #6b2f2f;
     color: #e5a0a0;
+    margin-top: 20px; /* separación prudente */
     width: 110px;
-    padding: 8px 12px;
-    font-size: 16px;
+  }
+  .btn-use-buy {
+    border-color: #cc6600;
+    color: #ffb84d;
+  }
+  .btn-add-buy {
+    border-color: #00662e;
+    color: #94d48e;
   }
 
   .players {
     display: grid;
     grid-template-columns: repeat(2, minmax(0,1fr));
-    grid-template-rows: repeat(3, auto);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 10px;
     width: 100%;
     padding: 0 8px;
-    gap: 10px;
-    overflow: visible;
-    max-height: none;
+    max-height: calc(100vh - 160px); /* dejar espacio para boton reiniciar y top */
+    overflow-y: hidden; /* nada de scroll vertical */
   }
-
   .player {
     border: 1px solid #222;
     padding: 10px;
@@ -89,15 +99,15 @@
     transition: 0.3s;
     min-width: 0;
     user-select: none;
+    background: #111;
+    border-radius: 6px;
   }
-
   .player.disabled {
     opacity: 0.35;
     pointer-events: none;
   }
-
   .player.winner {
-    border: 2px solid #d4af37;
+    border: 3px solid #d4af37;
   }
 
   .name-block {
@@ -105,7 +115,6 @@
     flex-direction: column;
     align-items: center;
   }
-
   .name {
     text-align: center;
     font-size: 18px;
@@ -116,18 +125,16 @@
     outline: none;
     text-transform: uppercase;
     width: 100%;
-    user-select: text;
   }
-
-  .entradas {
-    margin-top: 4px;
+  .compras {
+    margin-top: 6px;
     background: #ffeb3b;
     color: #000;
     font-size: 14px;
-    padding: 2px 6px;
+    padding: 3px 8px;
     border-radius: 6px;
+    user-select: none;
   }
-
   .divider {
     height: 1px;
     background: #333;
@@ -141,42 +148,40 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    min-height: 120px;
   }
-
   .score {
     font-size: 72px;
     font-weight: bold;
     word-break: break-word;
+    user-select: none;
   }
-
   .score.out {
     color: #e55353;
   }
 
-  .winner-label {
-    margin-top: 6px;
-    color: #d4af37;
-    font-weight: bold;
-    letter-spacing: 2px;
+  .buy-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
   }
 
   .bottom {
-    margin-top: 20px;
     display: flex;
     justify-content: center;
+    padding-bottom: 8px;
   }
 
-  /* Modal */
   .modal {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0,0,0,0.85);
     display: none;
     align-items: center;
     justify-content: center;
-    z-index: 100;
+    z-index: 999;
   }
-
   .modal-box {
     background: #111;
     padding: 20px;
@@ -184,7 +189,6 @@
     text-align: center;
     width: 280px;
   }
-
   .modal-box input {
     width: 100%;
     padding: 12px;
@@ -195,75 +199,27 @@
     border: 1px solid #333;
     margin-bottom: 12px;
   }
-
   .modal-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .modal-actions button {
-    padding: 10px 0;
-    font-size: 18px;
-    border-radius: 6px;
-  }
-
-  .btn-yes {
-    border: 1px solid #2f6b3f;
-    color: #9be5b1;
-    background: #164d23;
-  }
-
-  .btn-no {
-    border: 1px solid #6b2f2f;
-    color: #e5a0a0;
-    background: #4a201a;
-  }
-
-  /* Juego Selector */
-  #gameSelect {
-    border: 3px solid #2f6b3f;
-    border-radius: 8px;
-    background: #023215;
-    color: #9be5b1;
-    padding: 8px 12px;
-    font-size: 16px;
-    cursor: pointer;
-    min-width: 160px;
-    text-align: center;
-    user-select: none;
-  }
-
-  /* Botones usar + agregar compra alineados */
-  .purchase-controls {
     display: flex;
     gap: 10px;
     justify-content: center;
-    margin-top: 10px;
   }
-
-  .btn-use-purchase {
-    border: 1px solid #b36b00;
-    color: #ffb84d;
-    background: #2a1a00;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 6px;
-    font-size: 16px;
+  .modal-actions button {
+    flex: 1;
+    padding: 10px 0;
+    font-weight: bold;
+    max-width: 100px;
   }
-
-  .btn-add-purchase {
-    border: 1px solid #1f4d6b;
-    color: #8ad1ff;
-    background: #00385c;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 6px;
-    font-size: 16px;
+  .btn-yes {
+    border-color: #2f6b3f;
+    color: #9be5b1;
+  }
+  .btn-no {
+    border-color: #6b2f2f;
+    color: #e5a0a0;
   }
 </style>
 </head>
-
 <body>
 
 <h1>TELEFUKER</h1>
@@ -279,26 +235,21 @@
     <button class="btn-undo" id="undo" disabled>DESHACER</button>
   </div>
   <div class="right-controls">
-    <select id="gameSelect" title="Seleccione el juego actual">
+    <select id="gameSelect" title="Seleccione juego">
       <option value="1/3">1/3</option>
       <option value="1/4">1/4</option>
       <option value="1/5">1/5</option>
       <option value="2/3">2/3</option>
-      <option value="1/3-1/4">1/3 1/4</option>
+      <option value="1/3 1/4">1/3 1/4</option>
       <option value="2/4">2/4</option>
-      <option value="1/4-1/5">1/4 1/5</option>
+      <option value="1/4 1/5">1/4 1/5</option>
       <option value="2/5">2/5</option>
       <option value="Escalera">Escalera</option>
     </select>
   </div>
 </div>
 
-<div id="players" class="players"></div>
-
-<div class="purchase-controls">
-  <button class="btn-use-purchase" id="usePurchase">USAR COMPRA</button>
-  <button class="btn-add-purchase" id="addPurchase">+1</button>
-</div>
+<div class="players" id="players"></div>
 
 <div class="bottom">
   <button class="btn-reset" id="resetBtn">REINICIAR</button>
@@ -313,32 +264,31 @@
 </div>
 
 <script>
+(() => {
   let state = JSON.parse(localStorage.getItem("telefuker")) || {
     count: 0,
     players: [],
     history: [],
     winner: null,
-    purchases: 10,
-    game: "1/3",
+    currentGame: "1/3"
   };
 
   const playersDiv = document.getElementById("players");
   const countSel = document.getElementById("count");
   const undoBtn = document.getElementById("undo");
-  const resetBtn = document.getElementById("resetBtn");
   const modal = document.getElementById("modal");
   const modalText = document.getElementById("modalText");
   const modalInput = document.getElementById("modalInput");
   const modalActions = document.getElementById("modalActions");
   const gameSelect = document.getElementById("gameSelect");
-  const usePurchaseBtn = document.getElementById("usePurchase");
-  const addPurchaseBtn = document.getElementById("addPurchase");
+  const resetBtn = document.getElementById("resetBtn");
 
   function save() {
     localStorage.setItem("telefuker", JSON.stringify(state));
   }
 
   function snapshot() {
+    if(state.history.length >= 20) state.history.shift(); // limitar historial a 20
     state.history.push(JSON.stringify(state));
     undoBtn.disabled = false;
   }
@@ -347,148 +297,165 @@
     playersDiv.innerHTML = "";
     if (!state.count) return;
 
-    state.players.forEach((p, i) => {
-      const d = document.createElement("div");
-      d.className = "player";
-      if (state.winner !== null) {
-        if (i === state.winner) d.classList.add("winner");
-        else d.classList.add("disabled");
-      } else if (p.disabled) d.classList.add("disabled");
+    gameSelect.value = state.currentGame;
 
-      d.innerHTML = `
+    state.players.forEach((p, i) => {
+      const playerDiv = document.createElement("div");
+      playerDiv.className = "player";
+      if (state.winner !== null) {
+        if (i === state.winner) playerDiv.classList.add("winner");
+        else playerDiv.classList.add("disabled");
+      } else if (p.disabled) {
+        playerDiv.classList.add("disabled");
+      }
+
+      playerDiv.innerHTML = `
         <div class="name-block">
           <input class="name" value="${p.name}" />
-          ${p.entradas ? `<div class="entradas">ENTRADAS: ${p.entradas}</div>` : ""}
+          <div class="compras">Compras: ${p.buy}</div>
         </div>
         <div class="divider"></div>
         <div class="score-zone">
-          <div class="score ${p.out ? "out" : ""}">${p.score}</div>
-          ${state.winner === i ? '<div class="winner-label">GANADOR</div>' : ""}
+          <div class="score">${p.score}</div>
+        </div>
+        <div class="buy-controls">
+          <button class="btn-use-buy" ${p.buy === 0 ? "disabled" : ""} data-index="${i}">USAR COMPRA</button>
+          <button class="btn-add-buy" data-index="${i}">+1</button>
         </div>
       `;
 
-      const nameInput = d.querySelector(".name");
+      const nameInput = playerDiv.querySelector(".name");
       nameInput.onfocus = (e) => e.target.select();
       nameInput.oninput = (e) => {
-        p.name = e.target.value.toUpperCase();
+        state.players[i].name = e.target.value.toUpperCase();
         save();
       };
 
-      d.querySelector(".score-zone").onclick = () => {
-        openScore(i);
+      playerDiv.querySelector(".score-zone").onclick = () => {
+        if (state.winner !== null) return;
+        openScoreModal(i);
       };
 
-      playersDiv.appendChild(d);
-    });
+      playerDiv.querySelector(".btn-use-buy").onclick = () => useBuy(i);
+      playerDiv.querySelector(".btn-add-buy").onclick = () => addBuy(i);
 
-    undoBtn.disabled = !state.history.length;
-    countSel.value = state.count || "";
-    gameSelect.value = state.game || "1/3";
-    usePurchaseBtn.textContent = `USAR COMPRA (${state.purchases})`;
+      playersDiv.appendChild(playerDiv);
+    });
   }
 
-  function openScore(i) {
-    modalText.textContent = `Puntos para ${state.players[i].name}`;
+  function openScoreModal(i) {
+    modalText.textContent = `Ingresar puntos para ${state.players[i].name}`;
     modalInput.style.display = "block";
     modalInput.value = "";
     modal.style.display = "flex";
     modalInput.focus();
+
     modalActions.innerHTML = `
-      <button onclick="apply(${i},1)">SUMAR</button>
-      <button onclick="apply(${i},-1)">RESTAR</button>
+      <button class="btn-yes" data-op="sumar">SUMAR</button>
+      <button class="btn-no" data-op="restar">RESTAR</button>
     `;
+
+    [...modalActions.children].forEach(btn => {
+      btn.onclick = () => applyPoints(i, btn.getAttribute("data-op"));
+    });
   }
 
-  function apply(i, m) {
-    const v = parseInt(modalInput.value);
-    if (isNaN(v)) return;
-    snapshot();
-    state.players[i].score += v * m;
+  function applyPoints(i, op) {
+    const val = parseInt(modalInput.value);
+    if (isNaN(val) || val <= 0) return;
 
-    // Restar compra sólo si restar puntos (m === -1)
-    if (m === -1) {
-      if (state.purchases > 0) state.purchases--;
+    snapshot();
+
+    if (op === "sumar") {
+      state.players[i].score += val;
+    } else if (op === "restar") {
+      state.players[i].score -= val;
     }
 
     modal.style.display = "none";
-    checkState();
     save();
     render();
   }
 
-  function checkState() {
-    // Lógica para determinar ganador (ejemplo: jugador con menor puntaje al final)
-    if (state.count === 0) return;
+  function useBuy(i) {
+    if (state.players[i].buy <= 0) return;
+    snapshot();
+    state.players[i].buy--;
+    save();
+    render();
+  }
 
-    // No bloqueo ni condiciones para el juego actual (se pueden agregar según reglas)
+  function addBuy(i) {
+    if (!confirm(`¿Agregar 1 compra para ${state.players[i].name}?`)) return;
+    snapshot();
+    state.players[i].buy++;
+    save();
+    render();
   }
 
   countSel.onchange = () => {
-    state.count = parseInt(countSel.value);
+    const selectedCount = parseInt(countSel.value);
+    if (!selectedCount || selectedCount < 2 || selectedCount > 4) return;
+
+    snapshot();
+
+    state.count = selectedCount;
     state.players = [];
     state.winner = null;
-    for (let i = 0; i < state.count; i++) {
+    state.history = [];
+
+    for (let i = 0; i < selectedCount; i++) {
       state.players.push({
         name: `NOMBRE ${i + 1}`,
         score: 0,
-        entradas: 0,
-        disabled: false,
-        out: false,
+        buy: 10,
+        disabled: false
       });
     }
+
     save();
     render();
-  };
-
-  undoBtn.onclick = () => {
-    if (!state.history.length) return;
-    state = JSON.parse(state.history.pop());
-    save();
-    render();
-  };
-
-  resetBtn.onclick = () => {
-    if (confirm("¿Reiniciar juego?")) {
-      localStorage.removeItem("telefuker");
-      location.reload();
-    }
+    undoBtn.disabled = true;
   };
 
   gameSelect.onchange = () => {
-    state.game = gameSelect.value;
+    state.currentGame = gameSelect.value;
     save();
   };
 
-  usePurchaseBtn.onclick = () => {
-    if (state.purchases > 0) {
-      snapshot();
-      state.purchases--;
-      save();
-      render();
-    } else {
-      alert("No quedan compras para usar");
+  undoBtn.onclick = () => {
+    if (state.history.length === 0) return;
+    state = JSON.parse(state.history.pop());
+    save();
+    render();
+    if (state.history.length === 0) undoBtn.disabled = true;
+  };
+
+  resetBtn.onclick = () => {
+    if (!confirm("¿Reiniciar juego?")) return;
+    localStorage.removeItem("telefuker");
+    state = {
+      count: 0,
+      players: [],
+      history: [],
+      winner: null,
+      currentGame: "1/3"
+    };
+    render();
+    undoBtn.disabled = true;
+    countSel.value = "";
+  };
+
+  modal.onclick = e => {
+    if (e.target === modal) {
+      modal.style.display = "none";
     }
-  };
-
-  addPurchaseBtn.onclick = () => {
-    if (confirm("¿Agregar 1 compra?")) {
-      snapshot();
-      state.purchases++;
-      save();
-      render();
-    }
-  };
-
-  // Cerrar modal al hacer click fuera o con ESC
-  window.onclick = (e) => {
-    if (e.target === modal) modal.style.display = "none";
-  };
-
-  window.onkeydown = (e) => {
-    if (e.key === "Escape") modal.style.display = "none";
   };
 
   render();
+
+})();
 </script>
+
 </body>
 </html>
