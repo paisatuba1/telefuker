@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <title>TELEFUKER</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 <style>
   * {
     box-sizing: border-box;
@@ -15,6 +15,7 @@
     color: #fff;
     min-height: 100vh;
     overflow-x: hidden;
+    overflow-y: hidden; /* Evita scroll vertical */
   }
   h1 {
     text-align: center;
@@ -34,8 +35,8 @@
     gap: 12px;
   }
   .right-controls {
-    min-width: 240px;
-    max-width: 240px;
+    max-width: 180px;
+    min-width: 140px;
     background: #0a3c0a;
     border: 2px solid #0f7c0f;
     border-radius: 8px;
@@ -43,7 +44,7 @@
     justify-content: center;
     align-items: center;
     padding: 6px 10px;
-    box-sizing: border-box;
+    overflow: hidden;
   }
   select, button {
     background: #000;
@@ -78,7 +79,8 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0,1fr));
     grid-template-rows: repeat(3, 1fr);
-    height: calc(100vh - 170px); /* reducido para que botón quede visible */
+    /* Reducido para que no empuje el botón hacia abajo */
+    height: calc(100vh - 130px);
     width: 100%;
     padding: 0 8px;
     overflow: hidden;
@@ -159,7 +161,7 @@
   .bottom {
     display: flex;
     justify-content: center;
-    padding: 10px 0;
+    padding: 8px 0 10px 0;
   }
   /* MODAL */
   .modal {
@@ -191,8 +193,6 @@
   .modal-actions {
     display: flex;
     gap: 10px;
-    max-width: 280px;
-    margin: 0 auto;
   }
   .modal-actions button {
     flex: 1;
@@ -208,6 +208,8 @@
     border-color: #6b2f2f;
     color: #e5a0a0;
   }
+
+  /* Controles para comprar */
   .buy-controls {
     display: flex;
     justify-content: center;
@@ -303,7 +305,7 @@
       d.innerHTML = `
         <div class="name-block">
           <input class="name" value="${p.name}" />
-          <div class="entradas">Compras: ${p.buy || 10}</div>
+          <div class="entradas">Compras: ${p.buy ?? 10}</div>
         </div>
         <div class="divider"></div>
         <div class="score-zone">
@@ -336,7 +338,6 @@
     modal.style.display = "flex";
     modalInput.focus();
 
-    // Solo sumar y restar, sin cancelar
     modalActions.innerHTML = `
       <button onclick="apply(${i},1)">SUMAR</button>
       <button onclick="apply(${i},-1)">RESTAR</button>
@@ -350,16 +351,15 @@
     const p = state.players[i];
     p.score += v * m;
     modal.style.display = "none";
-    checkState();
     save();
     render();
   }
 
   function useBuy(i) {
+    if (state.players[i].buy === undefined) state.players[i].buy = 10;
     if (state.players[i].buy <= 0) return;
     snapshot();
     state.players[i].buy--;
-    if(state.players[i].buy < 0) state.players[i].buy = 0; // límite 0
     save();
     render();
   }
@@ -367,15 +367,11 @@
   function addBuy(i) {
     if (confirm("¿Agregar 1 compra para este jugador?")) {
       snapshot();
-      if (!state.players[i].buy) state.players[i].buy = 0;
+      if (state.players[i].buy === undefined) state.players[i].buy = 10;
       state.players[i].buy++;
       save();
       render();
     }
-  }
-
-  function checkState() {
-    // Sin lógica de ganador por ahora
   }
 
   countSel.onchange = () => {
@@ -414,6 +410,5 @@
 
   render();
 </script>
-
 </body>
 </html>
