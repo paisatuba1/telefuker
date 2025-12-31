@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<title>APUNTADO</title>
+<title>TELEFUKER</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
   * {
@@ -36,6 +36,7 @@
   }
   .middle-space {
     flex-grow: 1;
+    min-width: 100px; /* Más espacio entre los controles */
   }
   select, button {
     background: #000;
@@ -103,6 +104,8 @@
     outline: none;
     text-transform: uppercase;
     width: 100%;
+    padding: 0;
+    margin: 0;
   }
   .entradas {
     margin-top: 4px;
@@ -125,11 +128,14 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    min-height: 100px;
   }
   .score {
-    font-size: 72px; /* Puntaje grande */
+    font-size: 72px; /* Tamaño grande */
     font-weight: bold;
     word-break: break-word;
+    line-height: 1;
+    user-select: none;
   }
   .score.out {
     color: #e55353;
@@ -169,7 +175,7 @@
     color: #fff;
   }
   .btn-add-compra {
-    background: #2f6b3f; /* Otro color para sumar compras */
+    background: #2f6b3f; /* Color distinto para sumar compras */
     color: #fff;
   }
   .btn-compra:disabled, .btn-add-compra:disabled {
@@ -200,7 +206,7 @@
     font-size: 16px;
     text-align-last: center; /* para Chrome, Edge */
     -moz-text-align-last: center; /* Firefox */
-    width: 180px;
+    width: 160px; /* Ajustado para que "Escalera" quepa */
     cursor: pointer;
   }
   #game-select option {
@@ -253,7 +259,7 @@
 </head>
 
 <body>
-<h1>APUNTADO</h1>
+<h1>TELEFUKER</h1>
 
 <div class="top-controls" role="region" aria-label="Controles superiores">
   <div class="left-controls">
@@ -293,8 +299,7 @@
     "1/4 1/5", "2/5", "Escalera"
   ];
 
-  // Estado inicial o recuperado
-  let state = JSON.parse(localStorage.getItem("apuntado_v2")) || {
+  let state = JSON.parse(localStorage.getItem("telefuker_state")) || {
     count: 0,
     players: [],
     history: [],
@@ -312,18 +317,15 @@
   const modalActions = document.getElementById("modalActions");
   const gameSelect = document.getElementById("game-select");
 
-  // Guardar estado
   function save() {
-    localStorage.setItem("apuntado_v2", JSON.stringify(state));
+    localStorage.setItem("telefuker_state", JSON.stringify(state));
   }
 
-  // Guardar estado para deshacer
   function snapshot() {
     state.history.push(JSON.stringify(state));
     undoBtn.disabled = false;
   }
 
-  // Render selector de juegos
   function renderGameSelect() {
     gameSelect.innerHTML = "";
     GAMES.forEach((game, idx) => {
@@ -335,7 +337,6 @@
     });
   }
 
-  // Renderizado de jugadores y controles
   function render() {
     playersDiv.innerHTML = "";
     if (!state.count) {
@@ -367,7 +368,6 @@
         </div>
       `;
 
-      // Nombre editable, mayúsculas y guardar al cambiar
       const nameInput = playerDiv.querySelector(".name");
       nameInput.onfocus = e => e.target.select();
       nameInput.oninput = e => {
@@ -375,14 +375,12 @@
         save();
       };
 
-      // Abrir modal para sumar/restar puntos al click o enter/espacio
       const scoreZone = playerDiv.querySelector(".score-zone");
       scoreZone.onclick = () => openScoreModal(i);
       scoreZone.onkeypress = e => {
         if (e.key === "Enter" || e.key === " ") openScoreModal(i);
       };
 
-      // Botón usar compra, resta si puede
       const btnCompra = playerDiv.querySelector(".btn-compra");
       btnCompra.onclick = () => {
         if (player.compras > 0 && state.winner === null) {
@@ -393,7 +391,6 @@
         }
       };
 
-      // Botón agregar compra, con confirmación y otro color
       const btnAddCompra = playerDiv.querySelector(".btn-add-compra");
       btnAddCompra.onclick = () => {
         if (state.winner !== null) return;
@@ -410,7 +407,6 @@
     });
   }
 
-  // Abrir modal para sumar/restar puntos
   function openScoreModal(index) {
     if (state.winner !== null) return;
 
@@ -426,16 +422,14 @@
       <button id="modal-cancel" style="background:#333; color:#fff; border:none; border-radius:6px;">CANCELAR</button>
     `;
 
-    // Handlers para botones
     document.getElementById("modal-sumar").onclick = () => applyScore(index, 1);
     document.getElementById("modal-restar").onclick = () => applyScore(index, -1);
     document.getElementById("modal-cancel").onclick = closeModal;
   }
 
-  // Aplicar puntaje
   function applyScore(index, multiplier) {
     const val = parseInt(modalInput.value);
-    if (isNaN(val)) return; // no hace nada si no es número
+    if (isNaN(val)) return;
     snapshot();
     state.players[index].score += val * multiplier;
     closeModal();
@@ -443,12 +437,10 @@
     render();
   }
 
-  // Cerrar modal
   function closeModal() {
     modal.style.display = "none";
   }
 
-  // Cambiar juego seleccionado
   gameSelect.onchange = () => {
     snapshot();
     state.currentGameIndex = parseInt(gameSelect.value);
@@ -457,7 +449,6 @@
     render();
   };
 
-  // Cambiar cantidad jugadores
   countSel.onchange = () => {
     const val = parseInt(countSel.value);
     if (isNaN(val)) return;
@@ -479,7 +470,6 @@
     render();
   };
 
-  // Botón deshacer
   undoBtn.onclick = () => {
     if (!state.history.length) return;
     state = JSON.parse(state.history.pop());
@@ -488,11 +478,9 @@
     if (!state.history.length) undoBtn.disabled = true;
   };
 
-  // Botón reiniciar
   resetBtn.onclick = () => {
     if (confirm("¿Reiniciar juego?")) {
-      localStorage.removeItem("apuntado_v2");
-      // Reset estado local sin recargar
+      localStorage.removeItem("telefuker_state");
       state = {
         count: 0,
         players: [],
@@ -508,12 +496,10 @@
     }
   };
 
-  // Cerramos modal si se hace click fuera
   modal.onclick = e => {
     if (e.target === modal) closeModal();
   };
 
-  // Inicializar
   render();
 })();
 </script>
