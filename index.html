@@ -25,23 +25,22 @@
     letter-spacing: 4px;
     margin: 10px 0;
     user-select: none;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
   }
 
-  /* Barra Superior de Controles Reorganizada */
   .top-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 10px;
-    margin-bottom: 10px;
-    gap: 5px;
+    margin-bottom: 8px;
+    gap: 4px;
   }
   
   .controls-group-left {
     display: flex;
-    gap: 5px;
+    gap: 4px;
     align-items: center;
     flex: 1;
   }
@@ -59,8 +58,8 @@
     color: #fff;
     border: none;
     font-weight: bold;
-    font-size: 14px;
-    padding: 6px 4px;
+    font-size: 13px;
+    padding: 6px 2px;
     outline: none;
     appearance: none;
   }
@@ -70,25 +69,23 @@
     color: #fff;
     border: 1px solid #333;
     border-radius: 6px;
-    padding: 8px 6px;
-    font-size: 13px;
+    padding: 8px 5px;
+    font-size: 12px;
     cursor: pointer;
     white-space: nowrap;
   }
 
-  .btn-undo { border-color: #b36b00; color: #ffb84d; font-size: 18px; padding: 4px 10px; }
-  .btn-finish { border-color: #2f6b3f; color: #9be5b1; font-weight: bold; }
-  .btn-consolidado { border-color: #444; color: #fff; width: 160px; }
+  .btn-undo { border-color: #b36b00; color: #ffb84d; font-size: 11px; font-weight: bold; }
+  .btn-finish { border-color: #2f6b3f; color: #9be5b1; font-weight: bold; padding: 8px 10px; }
+  .btn-consolidado { border-color: #444; color: #fff; width: 160px; font-weight: bold; }
 
-  /* Grid de Jugadores con Proporción 1:1.2 */
   .players {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: repeat(3, 1fr);
     gap: 10px;
     padding: 0 10px;
-    /* Ajuste para asegurar que quepa en pantalla sin scroll */
-    height: calc(100vh - 180px); 
+    height: calc(100vh - 175px); 
   }
 
   .player {
@@ -99,7 +96,6 @@
     background: #0a0a0a;
     border-radius: 10px;
     justify-content: space-around;
-    /* Relación de aspecto 1 : 1.2 */
     aspect-ratio: 1 / 1.2;
     margin: 0 auto;
     width: 100%;
@@ -108,7 +104,7 @@
   .name-block { text-align: center; }
   .name {
     text-align: center;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     background: transparent;
     border: none;
@@ -121,7 +117,7 @@
   .compras-indicator {
     background: #ffd700;
     color: #000;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
     padding: 1px 6px;
     border-radius: 4px;
@@ -147,7 +143,7 @@
     gap: 4px;
   }
 
-  .btn-use-buy { border-color: #cc6600; color: #ffb84d; font-size: 10px; padding: 5px 0; }
+  .btn-use-buy { border-color: #cc6600; color: #ffb84d; font-size: 9px; padding: 5px 0; }
   .btn-add-buy { border-color: #00662e; color: #94d48e; font-size: 11px; }
 
   .bottom-area {
@@ -157,7 +153,6 @@
     align-items: center;
   }
 
-  /* Modales */
   .modal {
     position: fixed;
     inset: 0;
@@ -190,7 +185,6 @@
   .modal-actions { display: flex; gap: 10px; }
   .modal-actions button { flex: 1; padding: 12px 0; font-weight: bold; font-size: 18px; }
 
-  /* Tabla Consolidado */
   .consolidado-table {
     width: 100%;
     margin-top: 15px;
@@ -200,6 +194,7 @@
     padding: 8px;
     border-bottom: 1px solid #222;
     text-align: left;
+    font-size: 14px;
   }
   .consolidado-table td:last-child { text-align: right; font-weight: bold; color: #ffd700; }
 </style>
@@ -216,7 +211,8 @@
       <option value="3">3</option>
       <option value="4">4</option>
     </select>
-    <button class="btn-undo" id="undoBtn" disabled>&#10132;</button> <div class="right-controls">
+    <button class="btn-undo" id="undoBtn" disabled>DESHACER</button>
+    <div class="right-controls">
       <select id="gameSelect">
         <option value="1/3">1/3</option>
         <option value="1/4">1/4</option>
@@ -243,7 +239,7 @@
 <div class="modal" id="scoreModal">
   <div class="modal-box">
     <h2 id="modalPlayerName" style="margin:0; font-size: 18px;">PUNTOS</h2>
-    <input id="scoreInput" type="number" inputmode="numeric" />
+    <input id="scoreInput" type="number" inputmode="numeric" pattern="[0-9]*" autofocus />
     <div class="modal-actions">
       <button style="border-color: #2f6b3f; color: #9be5b1;" id="sumarBtn">SUMAR</button>
       <button style="border-color: #6b2f2f; color: #e5a0a0;" id="restarBtn">RESTAR</button>
@@ -261,13 +257,12 @@
 
 <script>
 (() => {
-  // Estado
   let state = JSON.parse(localStorage.getItem("telefuker_v3")) || {
     count: 0,
     players: [],
     history: [],
     currentGame: "1/3",
-    victories: {} // Guarda nombre: victorias
+    victories: {}
   };
 
   const container = document.getElementById("playersContainer");
@@ -331,8 +326,13 @@
     document.getElementById("modalPlayerName").textContent = state.players[i].name;
     scoreInput.value = "";
     scoreModal.style.display = "flex";
-    // Forzar teclado numérico enfocando
-    setTimeout(() => { scoreInput.focus(); }, 50);
+    
+    // El truco para el teclado en móvil es un focus inmediato seguido de un pequeño delay
+    scoreInput.focus(); 
+    setTimeout(() => {
+        scoreInput.click();
+        scoreInput.focus();
+    }, 10);
   };
 
   window.useBuy = (i) => {
@@ -397,11 +397,8 @@
     }
   };
 
-  // Botón Finalizar
   document.getElementById("finishBtn").onclick = () => {
     if (!confirm("¿Deseas finalizar la partida actual?")) return;
-
-    // Encontrar ganador (menor puntaje)
     let winnerIdx = 0;
     let minScore = state.players[0].score;
     state.players.forEach((p, idx) => {
@@ -410,17 +407,10 @@
         winnerIdx = idx;
       }
     });
-
     const winnerName = state.players[winnerIdx].name;
     state.victories[winnerName] = (state.victories[winnerName] || 0) + 1;
-
     showConsolidado();
-
-    // Reset para nueva partida
-    state.players.forEach(p => {
-      p.score = 0;
-      p.buy = 10;
-    });
+    state.players.forEach(p => { p.score = 0; p.buy = 10; });
     state.currentGame = "1/3";
     state.history = [];
     undoBtn.disabled = true;
@@ -428,7 +418,6 @@
     render();
   };
 
-  // Botón Consolidado
   document.getElementById("consolidadoBtn").onclick = () => showConsolidado();
 
   function showConsolidado() {
