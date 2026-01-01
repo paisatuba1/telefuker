@@ -75,7 +75,7 @@
     white-space: nowrap;
   }
 
-  .btn-undo { border-color: #b36b00; color: #ffb84d; font-size: 18px; padding: 4px 10px; }
+  .btn-undo { border-color: #b36b00; color: #ffb84d; font-size: 13px; padding: 8px 6px; }
   .btn-finish { border-color: #2f6b3f; color: #9be5b1; font-weight: bold; }
   .btn-consolidado { border-color: #444; color: #fff; width: 160px; }
 
@@ -137,12 +137,11 @@
     line-height: 1;
   }
 
-  /* BOTONES MÁS GRANDES SEGÚN SOLICITUD */
   .buy-controls {
     display: grid;
     grid-template-columns: 1.5fr 1fr;
     gap: 6px;
-    height: 45px; /* Altura aumentada para mejor toque */
+    height: 45px; 
   }
 
   .btn-use-buy { 
@@ -222,7 +221,7 @@
       <option value="3">3</option>
       <option value="4">4</option>
     </select>
-    <button class="btn-undo" id="undoBtn" disabled>&#10132;</button>
+    <button class="btn-undo" id="undoBtn" disabled>DESHACER</button>
     <div class="right-controls">
       <select id="gameSelect">
         <option value="1/3">1/3</option>
@@ -273,7 +272,7 @@
     players: [],
     history: [],
     currentGame: "1/3",
-    victories: [0, 0, 0, 0] // Vinculado a la posición (Index 0 a 3)
+    victories: [0, 0, 0, 0] 
   };
 
   const container = document.getElementById("playersContainer");
@@ -414,7 +413,7 @@
       }
     });
 
-    state.victories[winnerIdx]++; // Aumenta victoria por índice del jugador
+    state.victories[winnerIdx]++; 
 
     showConsolidado();
 
