@@ -314,7 +314,7 @@
           <div class="score">${p.score}</div>
         </div>
         <div class="buy-controls">
-          <button class="btn-use-buy" ${p.buy <= 0 ? 'disabled' : ''} onclick="window.useBuy(${i})">USAR COMPRA</button>
+          <button class="btn-use-buy" ${p.buy <= 0 ? 'disabled' : ''} onclick="window.useBuy(${i})">COMPRAR</button>
           <button class="btn-add-buy" onclick="window.addBuy(${i})">+1</button>
         </div>
       `;
@@ -359,7 +359,6 @@
 
   const applyPoints = (op) => {
     const val = parseInt(scoreInput.value);
-    // AJUSTE: Permite el número 0
     if (isNaN(val) || val < 0) return;
     snapshot();
     if (op === 'sumar') state.players[activePlayerIndex].score += val;
@@ -385,6 +384,8 @@
       save();
       render();
       undoBtn.disabled = true;
+    } else {
+      countSelect.value = state.count;
     }
   };
 
