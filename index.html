@@ -359,7 +359,8 @@
 
   const applyPoints = (op) => {
     const val = parseInt(scoreInput.value);
-    if (isNaN(val) || val <= 0) return;
+    // AJUSTE: Permite el número 0
+    if (isNaN(val) || val < 0) return;
     snapshot();
     if (op === 'sumar') state.players[activePlayerIndex].score += val;
     else state.players[activePlayerIndex].score -= val;
